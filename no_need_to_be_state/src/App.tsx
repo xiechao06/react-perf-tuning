@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "./App.css";
 
 const TemperatureContext = createContext(0);
@@ -21,26 +28,14 @@ function TemperatureProvider({ children }: { children: JSX.Element }) {
   );
 }
 
-function useRenderCount() {
-  const renderCountRef = useRef(0);
-  useEffect(() => {
-    ++renderCountRef.current;
-  });
-  return renderCountRef.current;
-}
-
 function TemperatureReporter() {
   const temperature = useContext(TemperatureContext);
+  const onClick = useCallback(() => {
+    window.alert("当前温度是" + temperature + " ℃");
+  }, [temperature]);
   return (
     <div>
-      <p>Render count: {useRenderCount()}</p>
-      <button
-        onClick={() => {
-          window.alert("Temperature is " + temperature + " ℃");
-        }}
-      >
-        Report Temperature
-      </button>
+      <button onClick={onClick}>Report Temperature</button>
     </div>
   );
 }
