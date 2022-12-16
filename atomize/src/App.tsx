@@ -1,77 +1,55 @@
-import { createContext, useContext, useMemo, useState } from "react";
-import "./App.css";
+import { createContext, memo, useContext, useMemo, useState } from "react";
 
-type CountsContextType = {
-  count1: number;
-  count2: number;
-  updateCount1(arg: number): void;
-  updateCount2(arg: number): void;
+type CountContextType = {
+  count: number;
+  updateCount(fn: (arg: number) => number): void;
 };
 
-const CountsContext = createContext({} as CountsContextType);
+const CountContext = createContext({} as CountContextType);
 
-function CountsProvider({ children }: { children: JSX.Element }) {
-  const [count1, updateCount1] = useState(0);
-  const [count2, updateCount2] = useState(0);
+function CountProvider({ children }: { children: JSX.Element }) {
+  const [count, updateCount] = useState(0);
   const value = useMemo(
     () => ({
-      count1,
-      count2,
-      updateCount1,
-      updateCount2,
+      count,
+      updateCount,
     }),
-    [count1, updateCount1, count2, updateCount2]
+    [count, updateCount]
   );
   return (
-    <CountsContext.Provider value={value}>{children}</CountsContext.Provider>
+    <CountContext.Provider value={value}>{children}</CountContext.Provider>
   );
 }
 
-function Count1() {
-  console.log("render count1");
-  const { count1, updateCount1 } = useContext(CountsContext);
-  return (
-    <div>
-      Count1: {count1}
-      <button
-        onClick={() => {
-          updateCount1(count1 + 1);
-        }}
-      >
-        +count1
-      </button>
-    </div>
-  );
-}
+const Count = memo(function Count() {
+  console.log("render count");
+  const { count: count } = useContext(CountContext);
+  return <div>Count: {count}</div>;
+});
 
-function Count2() {
-  console.log("render count2");
-  const { count2, updateCount2 } = useContext(CountsContext);
+const IncCountButton = memo(function IncCountButton() {
+  console.log("render inc count button");
+  const { updateCount } = useContext(CountContext);
   return (
-    <div>
-      Count2: {count2}
-      <button
-        onClick={() => {
-          updateCount2(count2 + 1);
-        }}
-      >
-        +count2
-      </button>
-    </div>
+    <button
+      onClick={() => {
+        updateCount((prev) => prev + 1);
+      }}
+    >
+      +count
+    </button>
   );
-}
+});
 
 function App() {
-  const [counts, setCounts] = useState();
-
   return (
-    <div className="App">
-      <CountsProvider>
+    <div>
+      <CountProvider>
         <>
-          <Count1 />
-          <Count2 />
+          <Count />
+          <IncCountButton />
         </>
-      </CountsProvider>
+      </CountProvider>
     </div>
   );
 }
